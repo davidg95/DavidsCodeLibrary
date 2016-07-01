@@ -24,6 +24,7 @@ public class CodeEntry extends javax.swing.JDialog {
     private final Runnable run1;
     private final Runnable run2;
     private static boolean result = false;
+    private static String codeResult = "";
 
     /**
      * Creates new form CodeEntry
@@ -72,6 +73,22 @@ public class CodeEntry extends javax.swing.JDialog {
      */
     public CodeEntry(String title, String CODE) {
         this.CODE = CODE;
+        this.run1 = null;
+        this.run2 = null;
+        inputValue = "";
+        initComponents();
+        this.setTitle(title);
+        this.setLocationRelativeTo(null);
+        this.setModal(true);
+    }
+
+    /**
+     * Creates new form CodeEntry
+     *
+     * @param title the title to give to the window.
+     */
+    public CodeEntry(String title) {
+        this.CODE = null;
         this.run1 = null;
         this.run2 = null;
         inputValue = "";
@@ -132,6 +149,20 @@ public class CodeEntry extends javax.swing.JDialog {
         return result;
     }
 
+    /**
+     * Method to show the CodeEntry dialog.
+     *
+     * @param title the title to give to the window.
+     * @return the code the user entered as a String.
+     */
+    public static String showCodeEntryDialog(String title) {
+        dialog = new CodeEntry(title);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        dialog.setVisible(true);
+        return codeResult;
+    }
+
     private class ButtonAction extends AbstractAction {
 
         private static final long serialVersionUID = 1;
@@ -155,6 +186,7 @@ public class CodeEntry extends javax.swing.JDialog {
                     checkCode();
                     break;
                 default: //If a number key was pressed
+                    inputValue = new String(txtCode.getPassword());
                     inputValue += event.getActionCommand();
                     txtCode.setText(inputValue);
                     break;
@@ -299,19 +331,23 @@ public class CodeEntry extends javax.swing.JDialog {
      */
     private void checkCode() {
         if (txtCode.getPassword().length != 0) {
-            if (Arrays.equals(txtCode.getPassword(), CODE.toCharArray())) { //Check the correct code was entered
-                if (run1 != null) { //Check if a runnable was passed in
-                    run1.run();
+            if (CODE != null) {
+                if (Arrays.equals(txtCode.getPassword(), CODE.toCharArray())) { //Check the correct code was entered
+                    if (run1 != null) { //Check if a runnable was passed in
+                        run1.run();
+                    } else {
+                        result = true; //If no runnable was passed in then set the result to equal true
+                    }
                 } else {
-                    result = true; //If no runnable was passed in then set the result to equal true
+                    if (run2 != null) { //Check if a runnable was passed in
+                        run2.run();
+                    }
                 }
+                txtCode.setText("");
+                this.dispose();
             } else {
-                if (run2 != null) { //Check if a runnable was passed in
-                    run2.run();
-                }
+                codeResult = new String(txtCode.getPassword());
             }
-            txtCode.setText("");
-            this.dispose();
         }
         this.dispose();
     }
