@@ -11,8 +11,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JDialog;
 
 /**
- * A simple code entry dialog which asks the user to enter a code. If the code
- * is correct, a runnable is executed which is passed in as a parameter.
+ * A simple code entry dialog which asks the user to enter a code.
  *
  * @author David
  */

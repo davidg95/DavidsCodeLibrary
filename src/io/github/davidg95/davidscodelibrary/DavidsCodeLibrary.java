@@ -16,7 +16,9 @@ public class DavidsCodeLibrary {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println(CodeEntry.showCodeEntryDialog("Enter a number"));
+        if(BigYesNoPrompt.showBigYesNoPrompt("Select", "Yes or No?")){
+            System.out.println("sdfg");
+        }
     }
     
 }
