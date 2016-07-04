@@ -106,6 +106,7 @@ public class CodeEntry extends javax.swing.JDialog {
      * @param run the runnable which will be executed if the code is entered
      * correctly.
      */
+    @Deprecated
     public static void showCodeEntryDialog(String title, String code, Runnable run) {
         dialog = new CodeEntry(title, code, run);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -124,6 +125,7 @@ public class CodeEntry extends javax.swing.JDialog {
      * @param run2 the runnable which will be executed if the code is entered
      * incorrectly.
      */
+    @Deprecated
     public static void showCodeEntryDialog(String title, String code, Runnable run1, Runnable run2) {
         dialog = new CodeEntry(title, code, run1, run2);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -175,6 +177,7 @@ public class CodeEntry extends javax.swing.JDialog {
         public void actionPerformed(ActionEvent event) {
             switch (event.getActionCommand()) {
                 case "C": //If the user pressed cancel
+                    result = false;
                     inputValue = "";
                     if (txtCode.getPassword().length == 0) {
                         dispose();
@@ -341,6 +344,8 @@ public class CodeEntry extends javax.swing.JDialog {
                 } else {
                     if (run2 != null) { //Check if a runnable was passed in
                         run2.run();
+                    } else {
+                        result = false; //If no runnable was passed in then set the result to equal false
                     }
                 }
                 txtCode.setText("");
