@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package davidscodelibrary;
+package io.github.davidg95.davidscodelibrary.Dialogs.CodeEntry;
 
 import java.awt.event.ActionEvent;
 import java.util.Arrays;

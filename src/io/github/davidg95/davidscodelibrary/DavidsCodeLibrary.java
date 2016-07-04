@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package davidscodelibrary;
+package io.github.davidg95.davidscodelibrary;
 
 
 /**
@@ -16,9 +16,7 @@ public class DavidsCodeLibrary {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        if(BigYesNoPrompt.showBigYesNoPrompt("Select", "Yes or No?")){
-            System.out.println("sdfg");
-        }
+        
     }
     
 }
