@@ -217,6 +217,7 @@ public class CodeEntry extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(320, 320));
+        setResizable(false);
 
         btn1.setText("1");
         btn1.setPreferredSize(new java.awt.Dimension(80, 80));
