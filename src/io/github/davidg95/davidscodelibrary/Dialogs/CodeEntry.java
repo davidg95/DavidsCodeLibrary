@@ -146,6 +146,7 @@ public class CodeEntry extends javax.swing.JDialog {
         dialog = new CodeEntry(title, code);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
+        result = false;
         dialog.setVisible(true);
         return result;
     }
@@ -159,7 +160,7 @@ public class CodeEntry extends javax.swing.JDialog {
     public static String showCodeEntryDialog(String title) {
         dialog = new CodeEntry(title);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
+        
         dialog.setVisible(true);
         return codeResult;
     }
