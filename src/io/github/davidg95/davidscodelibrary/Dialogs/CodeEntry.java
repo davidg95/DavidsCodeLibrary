@@ -5,164 +5,118 @@
  */
 package io.github.davidg95.davidscodelibrary.Dialogs;
 
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.text.JTextComponent;
 
 /**
- * A simple code entry dialog which asks the user to enter a code.
+ * Dialog which displays a number entry form.
  *
  * @author David
  */
-public class CodeEntry extends javax.swing.JDialog {
+public class CodeEntry extends JDialog {
 
-    private final String CODE;
+    private String CODE;
     private static JDialog dialog;
-    private String inputValue = "";
-    private final Runnable run1;
-    private final Runnable run2;
-    private static boolean result = false;
-    private static String codeResult = "";
+    private JPanel keyPanel;
+    private String inputValue;
+    private static boolean result;
+    private static String codeResult;
+    private JTextComponent codeField;
 
     /**
      * Creates new form CodeEntry
      *
      * @param title the title to give to the window.
      * @param CODE the code for this CodeEntry.
-     * @param run the runnable to run if the code is entered correctly.
+     * @param hideCode true if you want a password field, false if you want a
+     * normal text field.
      */
-    public CodeEntry(String title, String CODE, Runnable run) {
+    public CodeEntry(String title, String CODE, boolean hideCode) {
+        this(title, hideCode);
         this.CODE = CODE;
-        this.run1 = run;
-        this.run2 = null;
-        inputValue = "";
-        initComponents();
-        this.setTitle(title);
-        this.setLocationRelativeTo(null);
-        this.setModal(true);
     }
 
     /**
      * Creates new form CodeEntry
      *
      * @param title the title to give to the window.
-     * @param CODE the code for this CodeEntry.
-     * @param run1 the runnable which will be executed if the code is entered
-     * correctly.
-     * @param run2 the runnable which will be executed if the code is entered
-     * incorrectly.
+     * @param hideCode true if you want a password field, false if you want a
+     * normal text field.
      */
-    public CodeEntry(String title, String CODE, Runnable run1, Runnable run2) {
-        this.CODE = CODE;
-        this.run1 = run1;
-        this.run2 = run2;
-        inputValue = "";
-        initComponents();
+    public CodeEntry(String title, boolean hideCode) {
+        if (hideCode) {
+            codeField = new JPasswordField();
+        } else {
+            codeField = new JTextField();
+        }
+        createGUI();
         this.setTitle(title);
         this.setLocationRelativeTo(null);
         this.setModal(true);
     }
 
-    /**
-     * Creates new form CodeEntry
-     *
-     * @param title the title to give to the window.
-     * @param CODE the code for this CodeEntry.
-     */
-    public CodeEntry(String title, String CODE) {
-        this.CODE = CODE;
-        this.run1 = null;
-        this.run2 = null;
+    public final void createGUI() {
+        keyPanel = new JPanel();
+        keyPanel.setLayout(new GridLayout(4, 3));
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        setResizable(false);
+        setMinimumSize(new java.awt.Dimension(240, 400));
+        setMaximumSize(new java.awt.Dimension(240, 400));
+        setPreferredSize(new java.awt.Dimension(240, 400));
+        keyPanel.setMinimumSize(new java.awt.Dimension(240, 320));
+        keyPanel.setMaximumSize(new java.awt.Dimension(240, 320));
+        keyPanel.setPreferredSize(new java.awt.Dimension(240, 320));
         inputValue = "";
-        initComponents();
-        this.setTitle(title);
-        this.setLocationRelativeTo(null);
-        this.setModal(true);
+        codeField.setFont(new java.awt.Font("Tahoma", 0, 36));
+        codeField.setPreferredSize(new java.awt.Dimension(240, 50));
+        codeField.setMinimumSize(new java.awt.Dimension(240, 50));
+        codeField.setMaximumSize(new java.awt.Dimension(240, 50));
+        if (codeField instanceof JPasswordField) {
+            JPasswordField passField = (JPasswordField) codeField;
+            passField.addActionListener((java.awt.event.ActionEvent evt) -> {
+                checkCode();
+            });
+            add(passField);
+        } else {
+            JTextField field = (JTextField) codeField;
+            field.addActionListener((java.awt.event.ActionEvent evt) -> {
+                checkCode();
+            });
+            add(field);
+        }
+        addButton("1");
+        addButton("2");
+        addButton("3");
+        addButton("4");
+        addButton("5");
+        addButton("6");
+        addButton("7");
+        addButton("8");
+        addButton("9");
+        addButton("C");
+        addButton("0");
+        addButton("Enter");
+        add(keyPanel);
+        pack();
     }
 
-    /**
-     * Creates new form CodeEntry
-     *
-     * @param title the title to give to the window.
-     */
-    public CodeEntry(String title) {
-        this.CODE = null;
-        this.run1 = null;
-        this.run2 = null;
-        inputValue = "";
-        initComponents();
-        this.setTitle(title);
-        this.setLocationRelativeTo(null);
-        this.setModal(true);
-    }
-
-    /**
-     * Method to show the CodeEntry dialog.
-     *
-     * @param title the title to show on the window.
-     * @param code the code to use. The code the used enters must match this
-     * code.
-     * @param run the runnable which will be executed if the code is entered
-     * correctly.
-     */
-    @Deprecated
-    public static void showCodeEntryDialog(String title, String code, Runnable run) {
-        dialog = new CodeEntry(title, code, run);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-        dialog.setVisible(true);
-    }
-
-    /**
-     * Method to show the CodeEntry dialog.
-     *
-     * @param title the title to show on the window.
-     * @param code the code to use. The code the used enters must match this
-     * code.
-     * @param run1 the runnable which will be executed if the code is entered
-     * correctly.
-     * @param run2 the runnable which will be executed if the code is entered
-     * incorrectly.
-     */
-    @Deprecated
-    public static void showCodeEntryDialog(String title, String code, Runnable run1, Runnable run2) {
-        dialog = new CodeEntry(title, code, run1, run2);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-        dialog.setVisible(true);
-    }
-
-    /**
-     * Method to show the CodeEntry dialog.
-     *
-     * @param title the title to give to the window.
-     * @param code the code to use. The code the user enters must match this
-     * code.
-     * @return true if the code matches, false otherwise. false will also be
-     * returned if the user cancels.
-     */
-    public static boolean showCodeEntryDialog(String title, String code) {
-        dialog = new CodeEntry(title, code);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-        result = false;
-        dialog.setVisible(true);
-        return result;
-    }
-
-    /**
-     * Method to show the CodeEntry dialog.
-     *
-     * @param title the title to give to the window.
-     * @return the code the user entered as a String.
-     */
-    public static String showCodeEntryDialog(String title) {
-        dialog = new CodeEntry(title);
-        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
-        dialog.setVisible(true);
-        return codeResult;
+    public final void addButton(String value) {
+        JButton button = new JButton();
+        button.setText(value);
+        button.setPreferredSize(new java.awt.Dimension(80, 80));
+        button.setMinimumSize(new java.awt.Dimension(80, 80));
+        button.setMaximumSize(new java.awt.Dimension(80, 80));
+        button.setAction(new ButtonAction(value, value));
+        keyPanel.add(button);
     }
 
     private class ButtonAction extends AbstractAction {
@@ -180,231 +134,101 @@ public class CodeEntry extends javax.swing.JDialog {
                 case "C": //If the user pressed cancel
                     result = false;
                     inputValue = "";
-                    if (txtCode.getPassword().length == 0) {
-                        dispose();
+                    if (codeField instanceof JPasswordField) {
+                        JPasswordField passField = (JPasswordField) codeField;
+                        if (passField.getPassword().length == 0) {
+                            dispose();
+                        }
+                    } else {
+                        JTextField field = (JTextField) codeField;
+                        if (field.getText().length() == 0) {
+                            dispose();
+                        }
                     }
-                    txtCode.setText("");
+                    codeField.setText("");
                     break;
                 case "Enter": //If the user pressed enter
                     checkCode();
                     break;
                 default: //If a number key was pressed
-                    inputValue = new String(txtCode.getPassword());
+                    if (codeField instanceof JPasswordField) {
+                        JPasswordField passField = (JPasswordField) codeField;
+                        inputValue = new String(passField.getPassword());
+                    } else {
+                        JTextField field = (JTextField) codeField;
+                        inputValue = field.getText();
+                    }
                     inputValue += event.getActionCommand();
-                    txtCode.setText(inputValue);
+                    codeField.setText(inputValue);
                     break;
             }
         }
     }
 
     /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * Method to show the CodeEntry dialog.
+     *
+     * @param title the title to give to the window.
+     * @param code the code to use. The code the user enters must match this
+     * code.
+     * @param hideCode true if you want a password field, false if you want a
+     * normal text field.
+     * @return true if the code matches, false otherwise. false will also be
+     * returned if the user cancels.
      */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    public static boolean showCodeEntryDialog(String title, String code, boolean hideCode) {
+        dialog = new CodeEntry(title, code, hideCode);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        btn1 = new javax.swing.JButton();
-        btn2 = new javax.swing.JButton();
-        btn3 = new javax.swing.JButton();
-        btn4 = new javax.swing.JButton();
-        btn5 = new javax.swing.JButton();
-        btn6 = new javax.swing.JButton();
-        btn7 = new javax.swing.JButton();
-        btn8 = new javax.swing.JButton();
-        btn9 = new javax.swing.JButton();
-        btnC = new javax.swing.JButton();
-        btnEnter = new javax.swing.JButton();
-        txtCode = new javax.swing.JPasswordField();
+        result = false;
+        dialog.setVisible(true);
+        return result;
+    }
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(320, 320));
-        setResizable(false);
+    /**
+     * Method to show the CodeEntry dialog.
+     *
+     * @param title the title to give to the window.
+     * @param hideCode true if you want a password field, false if you want a
+     * normal text field.
+     * @return the code the user entered as a String.
+     */
+    public static String showCodeEntryDialog(String title, boolean hideCode) {
+        dialog = new CodeEntry(title, hideCode);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        btn1.setText("1");
-        btn1.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn1.setAction(new ButtonAction("1", "1"));
-
-        btn2.setText("2");
-        btn2.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn2.setAction(new ButtonAction("2", "2"));
-
-        btn3.setText("3");
-        btn3.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn3.setAction(new ButtonAction("3", "3"));
-
-        btn4.setText("4");
-        btn4.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn4.setAction(new ButtonAction("4", "4"));
-
-        btn5.setText("5");
-        btn5.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn5.setAction(new ButtonAction("5", "5"));
-
-        btn6.setText("6");
-        btn6.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn6.setAction(new ButtonAction("6", "6"));
-
-        btn7.setText("7");
-        btn7.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn7.setAction(new ButtonAction("7", "7"));
-
-        btn8.setText("8");
-        btn8.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn8.setAction(new ButtonAction("8", "8"));
-
-        btn9.setText("9");
-        btn9.setPreferredSize(new java.awt.Dimension(80, 80));
-        btn9.setAction(new ButtonAction("9", "9"));
-
-        btnC.setText("C");
-        btnC.setPreferredSize(new java.awt.Dimension(80, 80));
-        btnC.setAction(new ButtonAction("C", "C"));
-
-        btnEnter.setText("Enter");
-        btnEnter.setPreferredSize(new java.awt.Dimension(80, 160));
-        btnEnter.setAction(new ButtonAction("Enter", "Enter"));
-
-        txtCode.setFont(new java.awt.Font("Tahoma", 0, 36)); // NOI18N
-        txtCode.setAction(new ButtonAction("", "Enter"));
-        txtCode.setPreferredSize(new java.awt.Dimension(320, 40));
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(0, 0, 0)
-                            .addComponent(btn5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(0, 0, 0)
-                            .addComponent(btn6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(0, 0, 0)
-                            .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(0, 0, 0)
-                            .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btn7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, 0)
-                        .addComponent(btn8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, 0)
-                        .addComponent(btn9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, 0)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEnter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-            .addComponent(txtCode, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(txtCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnEnter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btn1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btn4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btn6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, 0)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(btn7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btn8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(btn9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-        );
-
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
+        codeResult = "";
+        dialog.setVisible(true);
+        return codeResult;
+    }
 
     /**
      * Method to check the code.
      */
     private void checkCode() {
-        if (txtCode.getPassword().length != 0) {
-            if (CODE != null) {
-                if (Arrays.equals(txtCode.getPassword(), CODE.toCharArray())) { //Check the correct code was entered
-                    if (run1 != null) { //Check if a runnable was passed in
-                        run1.run();
-                    } else {
-                        result = true; //If no runnable was passed in then set the result to equal true
-                    }
+        if (codeField instanceof JPasswordField) {
+            JPasswordField passField = (JPasswordField) codeField;
+            if (passField.getPassword().length != 0) {
+                if (CODE != null) {
+                    result = Arrays.equals(passField.getPassword(), CODE.toCharArray()); //Check the correct code was entered
+                    passField.setText("");
+                    this.dispose();
                 } else {
-                    if (run2 != null) { //Check if a runnable was passed in
-                        run2.run();
-                    } else {
-                        result = false; //If no runnable was passed in then set the result to equal false
-                    }
+                    codeResult = new String(passField.getPassword());
                 }
-                txtCode.setText("");
-                this.dispose();
-            } else {
-                codeResult = new String(txtCode.getPassword());
+            }
+        } else {
+            JTextField field = (JTextField) codeField;
+            if (field.getText().length() != 0) {
+                if (CODE != null) {
+                    result = field.getText().equals(CODE); //Check the correct code was entered
+                    field.setText("");
+                    this.dispose();
+                } else {
+                    codeResult = field.getText();
+                }
             }
         }
         this.dispose();
     }
-
-//    /**
-//     * @param args the command line arguments
-//     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//                /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new CodeEntry().setVisible(true);
-//            }
-//        });
-//    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    public javax.swing.JButton btn1;
-    public javax.swing.JButton btn2;
-    public javax.swing.JButton btn3;
-    public javax.swing.JButton btn4;
-    public javax.swing.JButton btn5;
-    public javax.swing.JButton btn6;
-    public javax.swing.JButton btn7;
-    public javax.swing.JButton btn8;
-    public javax.swing.JButton btn9;
-    private javax.swing.JButton btnC;
-    private javax.swing.JButton btnEnter;
-    private javax.swing.JPasswordField txtCode;
-    // End of variables declaration//GEN-END:variables
 }
