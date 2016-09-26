@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package io.github.davidg95.davidscodelibrary.Dialogs;
+package io.github.davidg95.Legacy;
 
 import javax.swing.JDialog;
 
@@ -13,7 +13,7 @@ import javax.swing.JDialog;
  *
  * @author David
  */
-public class BigPromptOld extends javax.swing.JDialog {
+public class BigPrompt extends javax.swing.JDialog {
 
     private static JDialog dialog;
     private static String result;
@@ -25,7 +25,7 @@ public class BigPromptOld extends javax.swing.JDialog {
      * @param title the title to add to the window.
      * @param message the message to display in the window.
      */
-    public BigPromptOld(String title, String message) {
+    public BigPrompt(String title, String message) {
         initComponents();
         this.setTitle(title);
         this.lblMessage.setText(message);
@@ -40,14 +40,14 @@ public class BigPromptOld extends javax.swing.JDialog {
      * @param message the message to display on the window.
      */
     public static void showMessageDialog(String title, String message) {
-        dialog = new BigPromptOld(title, message);
+        dialog = new BigPrompt(title, message);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
     }
     
     public static String showInputDialog(String title, String message){
         input = true;
-        dialog = new BigPromptOld(title, message);
+        dialog = new BigPrompt(title, message);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         result = null;
         dialog.setVisible(true);
