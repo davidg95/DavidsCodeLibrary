@@ -5,13 +5,18 @@
  */
 package io.github.davidg95.davidscodelibrary.Dialogs;
 
+import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import static javax.swing.JOptionPane.getRootFrame;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -35,36 +40,38 @@ public class CodeEntry extends JDialog {
     /**
      * Creates new form CodeEntry
      *
+     * @param parent the parent component this dialog will be attached to.
      * @param title the title to give to the window.
      * @param CODE the code for this CodeEntry.
      * @param hideCode true if you want a password field, false if you want a
      * normal text field.
      */
-    public CodeEntry(String title, String CODE, boolean hideCode) {
-        this(title, hideCode);
+    public CodeEntry(Window parent, String title, String CODE, boolean hideCode) {
+        this(parent, title, hideCode);
         this.CODE = CODE;
     }
 
     /**
      * Creates new form CodeEntry
      *
+     * @param parent the parent component this dialog will be attached to.
      * @param title the title to give to the window.
      * @param hideCode true if you want a password field, false if you want a
      * normal text field.
      */
-    public CodeEntry(String title, boolean hideCode) {
+    public CodeEntry(Window parent, String title, boolean hideCode) {
+        super(parent, title);
         if (hideCode) {
             codeField = new JPasswordField();
         } else {
             codeField = new JTextField();
         }
         createGUI();
-        this.setTitle(title);
-        this.setLocationRelativeTo(null);
-        this.setModal(true);
     }
 
     public final void createGUI() {
+        this.setLocationRelativeTo(null);
+        this.setModal(true);
         keyPanel = new JPanel();
         keyPanel.setLayout(new GridLayout(4, 3));
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -168,6 +175,7 @@ public class CodeEntry extends JDialog {
     /**
      * Method to show the CodeEntry dialog.
      *
+     * @param parent the parent component this dialog will be attached to.
      * @param title the title to give to the window.
      * @param code the code to use. The code the user enters must match this
      * code.
@@ -176,8 +184,14 @@ public class CodeEntry extends JDialog {
      * @return true if the code matches, false otherwise. false will also be
      * returned if the user cancels.
      */
-    public static boolean showCodeEntryDialog(String title, String code, boolean hideCode) {
-        dialog = new CodeEntry(title, code, hideCode);
+    public static boolean showCodeEntryDialog(Component parent, String title, String code, boolean hideCode) {
+        Window window;
+        if (parent instanceof Frame || parent instanceof Dialog){
+            window = (Window)parent;
+        } else {
+            window = getRootFrame();
+        }
+        dialog = new CodeEntry(window, title, code, hideCode);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         result = false;
@@ -188,13 +202,20 @@ public class CodeEntry extends JDialog {
     /**
      * Method to show the CodeEntry dialog.
      *
+     * @param parent the parent component this dialog will be attached to.
      * @param title the title to give to the window.
      * @param hideCode true if you want a password field, false if you want a
      * normal text field.
      * @return the code the user entered as a String.
      */
-    public static String showCodeEntryDialog(String title, boolean hideCode) {
-        dialog = new CodeEntry(title, hideCode);
+    public static String showCodeEntryDialog(Component parent, String title, boolean hideCode) {
+        Window window;
+        if (parent instanceof Frame || parent instanceof Dialog){
+            window = (Window)parent;
+        } else {
+            window = getRootFrame();
+        }
+        dialog = new CodeEntry(window, title, hideCode);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         codeResult = "";
