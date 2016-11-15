@@ -10,7 +10,7 @@ package io.github.davidg95.davidscodelibrary.Utilities;
  *
  * @author David
  */
-public class Misc {
+public abstract class Misc {
 
     /**
      * Method to generate a valid public IPv4 address.
