@@ -5,6 +5,8 @@
  */
 package io.github.davidg95.davidscodelibrary.Utilities;
 
+import java.util.Random;
+
 /**
  * Class which contains misc static methods.
  *
@@ -30,7 +32,7 @@ public abstract class Misc {
         int octet3 = 0;
         int octet4 = 0;
 
-        while (valid == false) {
+        while (!valid) {
             octet1 = (int) (Math.random() * 255);
             octet2 = (int) (Math.random() * 255);
             octet3 = (int) (Math.random() * 255);
@@ -68,5 +70,37 @@ public abstract class Misc {
         }
 
         return octet1 + "." + octet2 + "." + octet3 + "." + octet4;
+    }
+
+    public static String generateUsablePublicIPv6() {
+        boolean valid = false;
+        String[] blocks = new String[8];
+        
+        for (int i = 0; i < 8; i++) {
+            blocks[i] = generateRandomHexString();
+        }
+        
+        String result = "";
+        
+        for(String s: blocks){
+            result += ":" + s;
+        }
+        
+        return result.substring(1);
+    }
+
+    /**
+     * Method which generate a String of 4 random hex digits.
+     *
+     * @return a String of 4 random hex digits.
+     */
+    private static String generateRandomHexString() {
+        Random r = new Random();
+        StringBuffer sb = new StringBuffer();
+        while (sb.length() < 4) {
+            sb.append(Integer.toHexString(r.nextInt()));
+        }
+
+        return sb.toString().substring(0, 4);
     }
 }
