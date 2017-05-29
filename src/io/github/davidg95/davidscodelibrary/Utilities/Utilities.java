@@ -1,0 +1,36 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package io.github.davidg95.davidscodelibrary.Utilities;
+
+/**
+ *
+ * @author David
+ */
+public class Utilities {
+    /**
+     * Method to check if a string value is a number or not.
+     *
+     * @param val the value to check
+     * @return true if it is a number, false otherwise.
+     */
+    public static final boolean isNumber(String val) {
+        val = val.replace(".", "");
+        val = val.replace("-", "");
+        if (val.matches("[0-9]+")) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Method to check if a string value is an email or not.
+     * @param email
+     * @return 
+     */
+    public static final boolean isEmail(String email){
+        return email.contains("@") && email.contains(".") && email.length() > 4;
+    }
+}
