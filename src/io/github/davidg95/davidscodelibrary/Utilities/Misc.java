@@ -94,9 +94,9 @@ public final class Misc {
      *
      * @return a String of 4 random hex digits.
      */
-    private static final String generateRandomHexString() {
+    public static final String generateRandomHexString() {
         Random r = new Random();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (sb.length() < 4) {
             sb.append(Integer.toHexString(r.nextInt()));
         }
