@@ -5,12 +5,10 @@
  */
 package io.github.davidg95.davidscodelibrary.Utilities;
 
-import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedList;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
@@ -21,20 +19,24 @@ import javax.swing.SwingUtilities;
  */
 public class ClockThread extends Thread {
 
+    /**
+     * The ClockThread object.
+     */
     private static final ClockThread CLOCK_THREAD;
 
-    protected boolean isRunning;
+    /**
+     * The list of labels for the time to get added to.
+     */
+    private final LinkedList<JLabel> labels;
 
-    protected JLabel dateTimeLabel;
-    protected List<JLabel> labels;
-
-    protected SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-
-    protected Time time;
+    /**
+     * The Date formatter.
+     */
+    private final SimpleDateFormat timeFormat;
 
     public ClockThread() {
-        labels = new ArrayList<>();
-        this.isRunning = true;
+        this.timeFormat = new SimpleDateFormat("HH:mm");
+        labels = new LinkedList<>();
     }
 
     static {
@@ -60,46 +62,41 @@ public class ClockThread extends Thread {
         CLOCK_THREAD.removeLabel(label);
     }
 
-    /**
-     * Gets the current time.
-     *
-     * @return the current Time.
-     */
-    public static Time getTime() {
-        return CLOCK_THREAD.getCurrentTime();
-    }
-
     @Override
     public void run() {
-        while (isRunning) {
-            Calendar currentCalendar = Calendar.getInstance();
-            Date currentTime = currentCalendar.getTime();
-            time = new Time(currentCalendar.getTimeInMillis());
+        final Calendar currentCalendar = Calendar.getInstance(); //Get an instance of Calendar.
+        while (true) {
+            final Date currentTime = currentCalendar.getTime(); //Get the current Date and Time.
             if (labels != null) {
                 SwingUtilities.invokeLater(() -> {
-                    for (JLabel label : labels) {
-                        label.setText(timeFormat.format(currentTime));
-                    }
+                    labels.forEach((label) -> { //Loop through each label.
+                        label.setText(timeFormat.format(currentTime)); //Set the current Date and Time on the label.
+                    });
                 });
             }
 
             try {
-                Thread.sleep(5000L);
+                Thread.sleep(5000L); //Wait 5 seconds before updating again.
             } catch (InterruptedException e) {
             }
         }
     }
 
+    /**
+     * Adds a new label to the list of labels to have the time assigned to them.
+     *
+     * @param label the label to add the time to.
+     */
     public void addLabel(JLabel label) {
         labels.add(label);
     }
 
+    /**
+     * Removes a label from the list of labels to have the time assigned to.
+     *
+     * @param label the label to remove.
+     */
     public void removeLabel(JLabel label) {
         labels.remove(label);
     }
-
-    public Time getCurrentTime() {
-        return time;
-    }
-
 }
