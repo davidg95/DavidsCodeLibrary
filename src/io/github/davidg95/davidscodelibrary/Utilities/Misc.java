@@ -73,7 +73,7 @@ public final class Misc {
     }
 
     public static final String generateUsablePublicIPv6() {
-        String[] blocks = new String[8]; //Create a new String array of size 8.
+        final String[] blocks = new String[8]; //Create a new String array of size 8.
         
         for (int i = 0; i < 8; i++) { //Loop through each array position.
             blocks[i] = generateRandomHexString(); // Fill the current position in the array with a random hex String.
@@ -94,8 +94,8 @@ public final class Misc {
      * @return a String of 4 random hex digits.
      */
     public static final String generateRandomHexString() {
-        Random r = new Random();
-        StringBuilder sb = new StringBuilder();
+        final Random r = new Random();
+        final StringBuilder sb = new StringBuilder();
         while (sb.length() < 4) { //Loop untill 4 random hex values have been generated.
             sb.append(Integer.toHexString(r.nextInt())); //Generate a random hex value and add it to the StringBuilder.
         }
