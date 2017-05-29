@@ -12,7 +12,7 @@ import java.util.Random;
  *
  * @author David
  */
-public abstract class Misc {
+public final class Misc {
 
     /**
      * Method to generate a valid public IPv4 address.
@@ -25,7 +25,7 @@ public abstract class Misc {
      *
      * @return valid public IP address as a String.
      */
-    public static String generateUsablePublicIPv4() {
+    public static final String generateUsablePublicIPv4() {
         boolean valid = false;
         int octet1 = 0;
         int octet2 = 0;
@@ -72,7 +72,7 @@ public abstract class Misc {
         return octet1 + "." + octet2 + "." + octet3 + "." + octet4;
     }
 
-    public static String generateUsablePublicIPv6() {
+    public static final String generateUsablePublicIPv6() {
         boolean valid = false;
         String[] blocks = new String[8];
         
@@ -94,7 +94,7 @@ public abstract class Misc {
      *
      * @return a String of 4 random hex digits.
      */
-    private static String generateRandomHexString() {
+    private static final String generateRandomHexString() {
         Random r = new Random();
         StringBuffer sb = new StringBuffer();
         while (sb.length() < 4) {
