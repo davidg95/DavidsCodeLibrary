@@ -27,8 +27,12 @@ public class BigPrompt extends javax.swing.JDialog {
      */
     public BigPrompt(String title, String message) {
         initComponents();
-        this.setTitle(title);
         this.lblMessage.setText(message);
+        init(title);
+    }
+
+    private void init(String title) {
+        this.setTitle(title);
         this.setLocationRelativeTo(null);
         this.setModal(true);
     }
@@ -44,8 +48,8 @@ public class BigPrompt extends javax.swing.JDialog {
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setVisible(true);
     }
-    
-    public static String showInputDialog(String title, String message){
+
+    public static String showInputDialog(String title, String message) {
         input = true;
         dialog = new BigPrompt(title, message);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

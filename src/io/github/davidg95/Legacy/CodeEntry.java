@@ -38,9 +38,7 @@ public class CodeEntry extends javax.swing.JDialog {
         this.run2 = null;
         inputValue = "";
         initComponents();
-        this.setTitle(title);
-        this.setLocationRelativeTo(null);
-        this.setModal(true);
+        init(title);
     }
 
     /**
@@ -59,9 +57,7 @@ public class CodeEntry extends javax.swing.JDialog {
         this.run2 = run2;
         inputValue = "";
         initComponents();
-        this.setTitle(title);
-        this.setLocationRelativeTo(null);
-        this.setModal(true);
+        init(title);
     }
 
     /**
@@ -76,9 +72,7 @@ public class CodeEntry extends javax.swing.JDialog {
         this.run2 = null;
         inputValue = "";
         initComponents();
-        this.setTitle(title);
-        this.setLocationRelativeTo(null);
-        this.setModal(true);
+        init(title);
     }
 
     /**
@@ -92,6 +86,10 @@ public class CodeEntry extends javax.swing.JDialog {
         this.run2 = null;
         inputValue = "";
         initComponents();
+        init(title);
+    }
+
+    private void init(String title) {
         this.setTitle(title);
         this.setLocationRelativeTo(null);
         this.setModal(true);
@@ -160,7 +158,7 @@ public class CodeEntry extends javax.swing.JDialog {
     public static String showCodeEntryDialog(String title) {
         dialog = new CodeEntry(title);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
+
         dialog.setVisible(true);
         return codeResult;
     }
@@ -171,6 +169,10 @@ public class CodeEntry extends javax.swing.JDialog {
 
         ButtonAction(String text, String actionCommand) {
             super(text);
+            init(actionCommand);
+        }
+
+        private void init(String actionCommand) {
             putValue(ACTION_COMMAND_KEY, actionCommand);
         }
 

@@ -26,8 +26,12 @@ public class BigYesNoPrompt extends javax.swing.JDialog {
      */
     public BigYesNoPrompt(String title, String message) {
         initComponents();
-        this.setTitle(title);
         this.lblMessage.setText(message);
+        init(title);
+    }
+
+    private void init(String title) {
+        this.setTitle(title);
         this.setLocationRelativeTo(null);
         this.setModal(true);
     }

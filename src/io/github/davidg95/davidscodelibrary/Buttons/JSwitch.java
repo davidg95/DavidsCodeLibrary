@@ -36,7 +36,7 @@ public class JSwitch extends AbstractButton implements Accessible {
 
     private boolean state = false;
 
-    private static final String uiClassID = "SwitchUI";
+    private static final String UICLASSID = "SwitchUI";
 
     public JSwitch() {
         this(false);
@@ -70,7 +70,7 @@ public class JSwitch extends AbstractButton implements Accessible {
 
     @Override
     public String getUIClassID() {
-        return uiClassID;
+        return UICLASSID;
     }
 
     @Override
@@ -114,46 +114,44 @@ public class JSwitch extends AbstractButton implements Accessible {
     protected String paramString() {
         return super.paramString();
     }
-    
-    // *********************************************************************
 
+    // *********************************************************************
     /**
      * The ToggleButton model
      * <p>
      * <strong>Warning:</strong>
-     * Serialized objects of this class will not be compatible with
-     * future Swing releases. The current serialization support is
-     * appropriate for short term storage or RMI between applications running
-     * the same version of Swing.  As of 1.4, support for long term storage
-     * of all JavaBeans&trade;
-     * has been added to the <code>java.beans</code> package.
-     * Please see {@link java.beans.XMLEncoder}.
+     * Serialized objects of this class will not be compatible with future Swing
+     * releases. The current serialization support is appropriate for short term
+     * storage or RMI between applications running the same version of Swing. As
+     * of 1.4, support for long term storage of all JavaBeans&trade; has been
+     * added to the <code>java.beans</code> package. Please see
+     * {@link java.beans.XMLEncoder}.
      */
     public static class JSwitchModel extends DefaultButtonModel {
 
         /**
          * Creates a new ToggleButton Model
          */
-        public JSwitchModel () {
+        public JSwitchModel() {
         }
 
         /**
          * Checks if the button is selected.
+         *
+         * @return if it is selected or not.
          */
+        @Override
         public boolean isSelected() {
-//              if(getGroup() != null) {
-//                  return getGroup().isSelected(this);
-//              } else {
-                return (stateMask & SELECTED) != 0;
-//              }
+            return (stateMask & SELECTED) != 0;
         }
-
 
         /**
          * Sets the selected state of the button.
-         * @param b true selects the toggle button,
-         *          false deselects the toggle button.
+         *
+         * @param b true selects the toggle button, false deselects the toggle
+         * button.
          */
+        @Override
         public void setSelected(boolean b) {
 
             if (isSelected() == b) {
@@ -172,15 +170,18 @@ public class JSwitch extends AbstractButton implements Accessible {
             // Send ItemEvent
             fireItemStateChanged(
                     new ItemEvent(this,
-                                  ItemEvent.ITEM_STATE_CHANGED,
-                                  this,
-                                  this.isSelected() ?  ItemEvent.SELECTED : ItemEvent.DESELECTED));
+                            ItemEvent.ITEM_STATE_CHANGED,
+                            this,
+                            this.isSelected() ? ItemEvent.SELECTED : ItemEvent.DESELECTED));
 
         }
 
         /**
          * Sets the pressed state of the toggle button.
+         *
+         * @param b set whether the toggle button is pressed or not.
          */
+        @Override
         public void setPressed(boolean b) {
             if ((isPressed() == b) || !isEnabled()) {
                 return;
@@ -198,19 +199,19 @@ public class JSwitch extends AbstractButton implements Accessible {
 
             fireStateChanged();
 
-            if(!isPressed() && isArmed()) {
+            if (!isPressed() && isArmed()) {
                 int modifiers = 0;
                 AWTEvent currentEvent = EventQueue.getCurrentEvent();
                 if (currentEvent instanceof InputEvent) {
-                    modifiers = ((InputEvent)currentEvent).getModifiers();
+                    modifiers = ((InputEvent) currentEvent).getModifiers();
                 } else if (currentEvent instanceof ActionEvent) {
-                    modifiers = ((ActionEvent)currentEvent).getModifiers();
+                    modifiers = ((ActionEvent) currentEvent).getModifiers();
                 }
                 fireActionPerformed(
-                    new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-                                    getActionCommand(),
-                                    EventQueue.getMostRecentEventTime(),
-                                    modifiers));
+                        new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+                                getActionCommand(),
+                                EventQueue.getMostRecentEventTime(),
+                                modifiers));
             }
 
         }
@@ -220,17 +221,16 @@ public class JSwitch extends AbstractButton implements Accessible {
 ////////////////
 
     /**
-     * Gets the AccessibleContext associated with this JToggleButton.
-     * For toggle buttons, the AccessibleContext takes the form of an
-     * AccessibleJToggleButton.
-     * A new AccessibleJToggleButton instance is created if necessary.
+     * Gets the AccessibleContext associated with this JToggleButton. For toggle
+     * buttons, the AccessibleContext takes the form of an
+     * AccessibleJToggleButton. A new AccessibleJToggleButton instance is
+     * created if necessary.
      *
-     * @return an AccessibleJToggleButton that serves as the
-     *         AccessibleContext of this JToggleButton
-     * @beaninfo
-     *       expert: true
-     *  description: The AccessibleContext associated with this ToggleButton.
+     * @return an AccessibleJToggleButton that serves as the AccessibleContext
+     * of this JToggleButton
+     * this ToggleButton.
      */
+    @Override
     public AccessibleContext getAccessibleContext() {
         if (accessibleContext == null) {
             accessibleContext = new AccessibleJSwitch();
@@ -240,18 +240,17 @@ public class JSwitch extends AbstractButton implements Accessible {
 
     /**
      * This class implements accessibility support for the
-     * <code>JToggleButton</code> class.  It provides an implementation of the
+     * <code>JToggleButton</code> class. It provides an implementation of the
      * Java Accessibility API appropriate to toggle button user-interface
      * elements.
      * <p>
      * <strong>Warning:</strong>
-     * Serialized objects of this class will not be compatible with
-     * future Swing releases. The current serialization support is
-     * appropriate for short term storage or RMI between applications running
-     * the same version of Swing.  As of 1.4, support for long term storage
-     * of all JavaBeans&trade;
-     * has been added to the <code>java.beans</code> package.
-     * Please see {@link java.beans.XMLEncoder}.
+     * Serialized objects of this class will not be compatible with future Swing
+     * releases. The current serialization support is appropriate for short term
+     * storage or RMI between applications running the same version of Swing. As
+     * of 1.4, support for long term storage of all JavaBeans&trade; has been
+     * added to the <code>java.beans</code> package. Please see
+     * {@link java.beans.XMLEncoder}.
      */
     protected class AccessibleJSwitch extends AccessibleAbstractButton
             implements ItemListener {
@@ -262,9 +261,12 @@ public class JSwitch extends AbstractButton implements Accessible {
         }
 
         /**
-         * Fire accessible property change events when the state of the
-         * toggle button changes.
+         * Fire accessible property change events when the state of the toggle
+         * button changes.
+         *
+         * @param e the event.
          */
+        @Override
         public void itemStateChanged(ItemEvent e) {
             JToggleButton tb = (JToggleButton) e.getSource();
             if (JSwitch.this.accessibleContext != null) {
@@ -286,6 +288,7 @@ public class JSwitch extends AbstractButton implements Accessible {
          * @return an instance of AccessibleRole describing the role of the
          * object
          */
+        @Override
         public AccessibleRole getAccessibleRole() {
             return AccessibleRole.TOGGLE_BUTTON;
         }

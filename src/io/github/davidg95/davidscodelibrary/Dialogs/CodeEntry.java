@@ -16,7 +16,6 @@ import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import static javax.swing.JOptionPane.getRootFrame;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -132,6 +131,10 @@ public class CodeEntry extends JDialog {
 
         ButtonAction(String text, String actionCommand) {
             super(text);
+            init(actionCommand);
+        }
+
+        private void init(String actionCommand) {
             putValue(ACTION_COMMAND_KEY, actionCommand);
         }
 
@@ -186,10 +189,10 @@ public class CodeEntry extends JDialog {
      */
     public static boolean showCodeEntryDialog(Component parent, String title, String code, boolean hideCode) {
         Window window;
-        if (parent instanceof Frame || parent instanceof Dialog){
-            window = (Window)parent;
+        if (parent instanceof Frame || parent instanceof Dialog) {
+            window = (Window) parent;
         } else {
-            window = getRootFrame();
+            window = null;
         }
         dialog = new CodeEntry(window, title, code, hideCode);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -210,10 +213,10 @@ public class CodeEntry extends JDialog {
      */
     public static String showCodeEntryDialog(Component parent, String title, boolean hideCode) {
         Window window;
-        if (parent instanceof Frame || parent instanceof Dialog){
-            window = (Window)parent;
+        if (parent instanceof Frame || parent instanceof Dialog) {
+            window = (Window) parent;
         } else {
-            window = getRootFrame();
+            window = null;
         }
         dialog = new CodeEntry(window, title, hideCode);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

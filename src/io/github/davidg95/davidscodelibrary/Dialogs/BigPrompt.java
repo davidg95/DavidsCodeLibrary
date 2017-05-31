@@ -8,11 +8,9 @@ package io.github.davidg95.davidscodelibrary.Dialogs;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
@@ -35,8 +33,12 @@ public class BigPrompt extends JDialog {
      */
     public BigPrompt(String title, String message) {
         initComponents();
-        this.setTitle(title);
         this.lblMessage.setText(message);
+        init(title);
+    }
+
+    private void init(String title) {
+        this.setTitle(title);
         this.setLocationRelativeTo(null);
         this.setModal(true);
     }
@@ -80,7 +82,7 @@ public class BigPrompt extends JDialog {
         btnOK.addActionListener((ActionEvent evt) -> {
             btnOKActionPerformed();
         });
-        
+
         lblMessage.setPreferredSize(new Dimension(230, 20));
 
         this.add(lblMessage);
@@ -92,17 +94,17 @@ public class BigPrompt extends JDialog {
             });
             this.add(txtInput);
         }
-        
+
         this.add(btnOK);
-        
+
         pack();
     }
 
     private void btnOKActionPerformed() {
         this.setVisible(false);
     }
-    
-    private void txtInputActionPerformed(){
+
+    private void txtInputActionPerformed() {
         btnOK.doClick();
     }
 
