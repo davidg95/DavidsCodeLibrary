@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 /**
+ * Class for sending JConn requests to a JConn server.
  *
  * @author David
  */
