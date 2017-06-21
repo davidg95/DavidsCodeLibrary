@@ -10,8 +10,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +50,7 @@ public class JConnConnectionAccept extends Thread {
      * Constructor which starts the ThreadPoolExcecutor.
      *
      * @param PORT the port number to listen on.
-     * @param classToScan
+     * @param classToScan the class to be scanned for annotations.
      * @throws IOException if there was a network error.
      */
     public JConnConnectionAccept(int PORT, Object classToScan) throws IOException {

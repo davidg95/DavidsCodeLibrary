@@ -19,7 +19,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Class which deals with the encryption of data.
+ * Class which deals with the encryption of data. For using this class on a String, no Generic type needs to be specified.
  *
  * @author David
  * @param <T> the Type of object this Encryptor will be used for
