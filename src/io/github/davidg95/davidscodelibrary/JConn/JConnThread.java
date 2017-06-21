@@ -132,8 +132,8 @@ public class JConnThread extends Thread {
                                                         JConnParameter jp = (JConnParameter) ap;
                                                         if (jp.value().equals(pair.getKey())) { //Check if the annotation value matches the parameter.
                                                             params[currentPos] = pair.getValue(); //Add the parameter to the array.
-                                                            currentPos++;
                                                         }
+                                                        currentPos++;
                                                     }
                                                 }
                                                 it.remove();
