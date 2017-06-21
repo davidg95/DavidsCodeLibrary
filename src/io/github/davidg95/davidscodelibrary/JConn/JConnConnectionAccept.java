@@ -62,24 +62,34 @@ public class JConnConnectionAccept extends Thread {
 
     @Override
     public void run() {
-        LOG.log(Level.INFO, "Starting Thread Pool Excecutor");
+        if (JConnServer.DEBUG) {
+            LOG.log(Level.INFO, "Starting Thread Pool Excecutor");
+        }
         final ThreadPoolExecutor pool = new ThreadPoolExecutor(MAX_CONN, MAX_QUEUE, 50000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(MAX_QUEUE));
         pool.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
         try {
-            LOG.log(Level.INFO, "Local IP address is " + InetAddress.getLocalHost().getHostAddress());
-            LOG.log(Level.INFO, "Server Socket running on port number " + PORT_IN_USE);
+            if (JConnServer.DEBUG) {
+                LOG.log(Level.INFO, "Local IP address is " + InetAddress.getLocalHost().getHostAddress());
+                LOG.log(Level.INFO, "Server Socket running on port number " + PORT_IN_USE);
+            }
         } catch (UnknownHostException ex) {
-            LOG.log(Level.WARNING, "For some reason, the ip address of the local server could not be retrieved");
+            if (JConnServer.DEBUG) {
+                LOG.log(Level.WARNING, "For some reason, the ip address of the local server could not be retrieved");
+            }
         }
-        LOG.log(Level.INFO, "Ready to accept connections");
+        if (JConnServer.DEBUG) {
+            LOG.log(Level.INFO, "Ready to accept connections");
+        }
         for (;;) {
             try {
                 final Socket incoming = socket.accept(); //Wait for a connection.
                 final JConnThread th = new JConnThread(socket.getInetAddress().getHostAddress(), incoming, classToScan);
                 pool.submit(th); //Submit the socket to the excecutor.
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, null, ex);
+                if (JConnServer.DEBUG) {
+                    LOG.log(Level.SEVERE, null, ex);
+                }
             }
         }
     }

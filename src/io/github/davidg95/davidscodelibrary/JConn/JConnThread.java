@@ -11,9 +11,13 @@ import java.io.ObjectOutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -91,16 +95,20 @@ public class JConnThread extends Thread {
                 try {
                     sem.acquire();
                 } catch (InterruptedException ex) {
-                    LOG.log(Level.SEVERE, null, ex);
+                    if (JConnServer.DEBUG) {
+                        LOG.log(Level.SEVERE, null, ex);
+                    }
                 }
 
                 final JConnData data = currentData.clone(); //Take a clone of the ConnectionData object
 
-                LOG.log(Level.INFO, "Received " + data.getFlag() + " from client", data.getFlag());
+                if (JConnServer.DEBUG) {
+                    LOG.log(Level.INFO, "Received " + data.getFlag() + " from client", data.getFlag());
+                }
 
                 for (Method m : JCONNMETHODS) { //Loop through every method in this class
                     final Annotation a = m.getAnnotation(JConnMethod.class); //Get the JConnMethod annotation
-                    if (a.annotationType() == JConnMethod.class) { //Check if it as the JConnMethod annotation
+                    if (a.annotationType() == JConnMethod.class) { //Check if it has the JConnMethod annotation
                         final JConnMethod ja = (JConnMethod) a; //Get the JConnMethod annotation object to find out the flag name
                         final String flag = data.getFlag(); //Get the flag from the connection object
                         if (ja.value().equals(flag)) { //Check if the current flag matches the flag definted on the annotation
@@ -109,11 +117,33 @@ public class JConnThread extends Thread {
                                 m.setAccessible(true); //Set the access to public
                                 final Runnable run = () -> {
                                     try {
-                                        final Object ret = m.invoke(classToScan, clone.getData()); //Invoke the method
-                                        obOut.writeObject(JConnData.create("SUCC", ret)); //Return the result
+                                        final HashMap<String, Object> map = clone.getData(); //Get the parameters
+                                        if (m.getParameterCount() != map.size()) { //Check the amount of paramters passed in matches the amount on the method.
+                                            obOut.writeObject(JConnData.create("ILLEGAL_PARAM_LENGTH"));
+                                        } else {
+                                            Iterator it = map.entrySet().iterator();
+                                            Object[] params = new Object[clone.getData().size()];
+                                            while (it.hasNext()) { //Iterate through the map of parameters
+                                                Map.Entry pair = (Map.Entry) it.next();
+                                                int currentPos = 0;
+                                                for (Parameter p : m.getParameters()) {
+                                                    final Annotation ap = p.getAnnotation(JConnParameter.class); //Get the JConnParameter annotation.
+                                                    if (ap.annotationType() == JConnParameter.class) {
+                                                        JConnParameter jp = (JConnParameter) ap;
+                                                        if (jp.value().equals(pair.getKey())) { //Check if the annotation value matches the parameter.
+                                                            params[currentPos] = pair.getValue(); //Add the parameter to the array.
+                                                            currentPos++;
+                                                        }
+                                                    }
+                                                }
+                                                it.remove();
+                                            }
+                                            final Object ret = m.invoke(classToScan, params); //Invoke the method
+                                            obOut.writeObject(JConnData.create("SUCC").addParam("RETURN", ret)); //Return the result
+                                        }
                                     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IOException ex) {
                                         try {
-                                            obOut.writeObject(JConnData.create("FAIL", ex));
+                                            obOut.writeObject(JConnData.create("FAIL").addParam("RETURN", ex));
                                         } catch (IOException ex1) {
                                             Logger.getLogger(JConnThread.class.getName()).log(Level.SEVERE, null, ex1);
                                         }
@@ -129,22 +159,32 @@ public class JConnThread extends Thread {
                 }
                 sem.release();
             }
-            LOG.log(Level.INFO, "Connection closing to client");
+            if (JConnServer.DEBUG) {
+                LOG.log(Level.INFO, "Connection closing to client");
+            }
         } catch (SocketException ex) {
-            LOG.log(Level.WARNING, "The connection to the client was shut down forcefully");
+            if (JConnServer.DEBUG) {
+                LOG.log(Level.WARNING, "The connection to the client was shut down forcefully");
+            }
         } catch (IOException | ClassNotFoundException | CloneNotSupportedException | SecurityException ex) {
-            System.out.println(ex);
+            if (JConnServer.DEBUG) {
+                System.out.println(ex);
+            }
         } finally {
             try {
                 socket.close(); //Close the socket
-                LOG.log(Level.INFO, "Connection terminated");
+                if (JConnServer.DEBUG) {
+                    LOG.log(Level.INFO, "Connection terminated");
+                }
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, null, ex);
+                if (JConnServer.DEBUG) {
+                    LOG.log(Level.SEVERE, null, ex);
+                }
             }
         }
     }
-    
-    public void endConnection(){
+
+    public void endConnection() {
         conn_term = true;
     }
 }

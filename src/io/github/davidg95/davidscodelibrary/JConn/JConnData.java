@@ -6,6 +6,7 @@
 package io.github.davidg95.davidscodelibrary.JConn;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * Object for storing data to be sent from client to server or vice-versa. The
@@ -23,7 +24,7 @@ public class JConnData implements Serializable, Cloneable {
     /**
      * The array which contains any data for the transfer.
      */
-    private final Object[] data;
+    private final HashMap<String, Object> data;
 
     /**
      * Constructor which creates a ConnectionData object with no data, only a
@@ -33,18 +34,7 @@ public class JConnData implements Serializable, Cloneable {
      */
     public JConnData(String flag) {
         this.flag = flag;
-        this.data = null;
-    }
-
-    /**
-     * Constructor which creates a ConnectionData object with a flag and data.
-     *
-     * @param flag the flag to assign.
-     * @param data the data to assign.
-     */
-    public JConnData(String flag, Object... data) {
-        this.flag = flag;
-        this.data = data;
+        this.data = new HashMap<>();
     }
 
     /**
@@ -55,18 +45,6 @@ public class JConnData implements Serializable, Cloneable {
      */
     public static JConnData create(String flag) {
         return new JConnData(flag);
-    }
-
-    /**
-     * Static method to create a ConnectionData object with a flag and data. the
-     * amount of data variable and vary.
-     *
-     * @param flag the flag.
-     * @param data the data, this is a variable length parameter.
-     * @return the ConnectionData object.
-     */
-    public static JConnData create(String flag, Object... data) {
-        return new JConnData(flag, data);
     }
 
     /**
@@ -83,8 +61,13 @@ public class JConnData implements Serializable, Cloneable {
      *
      * @return the data as an Object array.
      */
-    public Object[] getData() {
+    public HashMap getData() {
         return data;
+    }
+
+    public JConnData addParam(String name, Object value) {
+        data.put(name, value);
+        return this;
     }
 
     /**
@@ -112,6 +95,6 @@ public class JConnData implements Serializable, Cloneable {
     @Override
     public String toString() {
         return "Flag- " + this.flag
-                + "\n Data- " + this.data.length;
+                + "\n Data- " + this.data.size();
     }
 }
