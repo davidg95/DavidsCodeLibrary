@@ -65,9 +65,28 @@ public class JConnData implements Serializable, Cloneable {
         return data;
     }
 
+    /**
+     * Adds a parameter to the JConnData.
+     *
+     * @param name the name of the parameter, must match the corresponding
+     * parameter value on the server.
+     * @param value the value of the parameter, must match the data type on the
+     * server.
+     * @return the JConnData object.
+     */
     public JConnData addParam(String name, Object value) {
         data.put(name, value);
         return this;
+    }
+
+    /**
+     * Returns the return value indicated by the RETURN key. Same as
+     * getData().getKey("RETURN").
+     *
+     * @return the return value.
+     */
+    public Object getReturnValue() {
+        return data.get("RETURN");
     }
 
     /**
