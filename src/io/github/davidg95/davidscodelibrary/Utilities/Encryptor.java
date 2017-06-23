@@ -59,7 +59,7 @@ public class Encryptor<T> {
      *
      * ***IT IS HIGHLY RECOMMENDED THAT YOU USE YOUR OWN ENCRYPTION KEY***.
      *
-     * Use the {@link getEncryptor(String key)} method.
+     * Use the {@link #getEncryptor(java.lang.String)} method.
      *
      * @return the Encryptor object.
      */
