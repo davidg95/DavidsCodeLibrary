@@ -19,7 +19,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Class which deals with the encryption of data. For using this class on a String, no Generic type needs to be specified.
+ * Class which deals with the encryption of data. For using this class on a
+ * String, no Generic type needs to be specified.
  *
  * @author David
  * @param <T> the Type of object this Encryptor will be used for
@@ -29,7 +30,7 @@ public class Encryptor<T> {
     /**
      * The default encryption key.
      */
-    private static final String DEFAULT_KEY = "jtillencryptkey1";
+    private static final String DEFAULT_KEY = "DefaultEncryptio";
 
     /**
      * They key to be used.
@@ -55,6 +56,10 @@ public class Encryptor<T> {
 
     /**
      * Returns a new instance of the the Encryptor object using the default key.
+     *
+     * ***IT IS HIGHLY RECOMMENDED THAT YOU USE YOUR OWN ENCRYPTION KEY***.
+     *
+     * Use the {@link getEncryptor(String key)} method.
      *
      * @return the Encryptor object.
      */
