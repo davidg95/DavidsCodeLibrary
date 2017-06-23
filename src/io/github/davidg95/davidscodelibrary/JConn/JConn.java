@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Class for sending JConn requests to a JConn server.
@@ -41,11 +43,15 @@ public class JConn {
      * @param data the data to send.
      * @param run the runnable to execute on a successful response.
      * @throws IOException if there was an error sending the data.
-     * @throws ClassNotFoundException if there was a class error.
      */
-    public void sendData(JConnData data, JConnRunnable run) throws IOException, ClassNotFoundException {
+    public void sendData(JConnData data, JConnRunnable run) throws IOException {
         out.writeObject(data);
-        JConnData reply = (JConnData) in.readObject();
+        JConnData reply;
+        try {
+            reply = (JConnData) in.readObject();
+        } catch (ClassNotFoundException ex) {
+            throw new IOException(ex.getMessage());
+        }
         run.run(reply);
     }
 }
