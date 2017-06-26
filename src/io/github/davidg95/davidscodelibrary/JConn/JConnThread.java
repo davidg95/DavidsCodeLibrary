@@ -79,6 +79,12 @@ public class JConnThread extends Thread {
         }
     }
 
+    /**
+     * Sends data to the client.
+     *
+     * @param data the data to send.
+     * @throws IOException if there was a network error.
+     */
     protected void sendData(JConnData data) throws IOException {
         final long stamp = outLock.writeLock();
         try {
@@ -88,6 +94,11 @@ public class JConnThread extends Thread {
         }
     }
 
+    /**
+     * Gets the IP address of the client.
+     *
+     * @return the IP address.
+     */
     protected String getIP() {
         return socket.getInetAddress().getHostAddress();
     }
