@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.StampedLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +34,8 @@ public class JConnThread extends Thread {
 
     private ObjectInputStream obIn; //InputStream for receiving data.
     private ObjectOutputStream obOut; //OutputStream for sending data
+
+    private final StampedLock outLock;
 
     private final Socket socket; //The main socket
 
@@ -61,6 +64,7 @@ public class JConnThread extends Thread {
         this.classToScan = o;
         JCONNMETHODS = new LinkedList<>();
         scanClass();
+        outLock = new StampedLock();
     }
 
     /**
@@ -73,6 +77,19 @@ public class JConnThread extends Thread {
                 JCONNMETHODS.add(m);
             }
         }
+    }
+
+    protected void sendData(JConnData data) throws IOException {
+        final long stamp = outLock.writeLock();
+        try {
+            obOut.writeObject(data);
+        } finally {
+            outLock.unlockWrite(stamp);
+        }
+    }
+
+    protected String getIP() {
+        return socket.getInetAddress().getHostAddress();
     }
 
     /**
@@ -119,7 +136,12 @@ public class JConnThread extends Thread {
                                     try {
                                         final HashMap<String, Object> map = clone.getData(); //Get the parameters
                                         if (m.getParameterCount() != map.size()) { //Check the amount of paramters passed in matches the amount on the method.
-                                            obOut.writeObject(JConnData.create("ILLEGAL_PARAM_LENGTH"));
+                                            final long stamp = outLock.writeLock();
+                                            try {
+                                                obOut.writeObject(JConnData.create("ILLEGAL_PARAM_LENGTH"));
+                                            } finally {
+                                                outLock.unlockWrite(stamp);
+                                            }
                                         } else {
                                             Iterator it = map.entrySet().iterator();
                                             Object[] params = new Object[clone.getData().size()];
@@ -139,13 +161,21 @@ public class JConnThread extends Thread {
                                                 it.remove();
                                             }
                                             final Object ret = m.invoke(classToScan, params); //Invoke the method
-                                            obOut.writeObject(JConnData.create("SUCC").addParam("RETURN", ret)); //Return the result
+                                            final long stamp = outLock.writeLock();
+                                            try {
+                                                obOut.writeObject(JConnData.create(flag).addParam("RETURN", ret)); //Return the result
+                                            } finally {
+                                                outLock.unlockWrite(stamp);
+                                            }
                                         }
                                     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IOException ex) {
+                                        final long stamp = outLock.writeLock();
                                         try {
-                                            obOut.writeObject(JConnData.create("FAIL").addParam("RETURN", ex));
+                                            obOut.writeObject(JConnData.create(flag).addParam("RETURN", ex));
                                         } catch (IOException ex1) {
                                             Logger.getLogger(JConnThread.class.getName()).log(Level.SEVERE, null, ex1);
+                                        } finally {
+                                            outLock.unlockWrite(stamp);
                                         }
                                     }
                                 };
