@@ -24,6 +24,8 @@ public class JConnServer {
      */
     protected static final boolean DEBUG = false;
 
+    private static JConnConnectionAccept acceptThread;
+
     /**
      * Start a new instance of JConnServer on the specified port.
      *
@@ -47,8 +49,31 @@ public class JConnServer {
         if (started) {
             throw new IOException("JConn has already been started");
         }
-        JConnConnectionAccept thread = new JConnConnectionAccept(port, classToScan);
-        thread.start();
+        acceptThread = new JConnConnectionAccept(port, classToScan);
+        acceptThread.start();
         started = true;
+    }
+
+    /**
+     * Sends data to all the current connected clients.
+     *
+     * @param ip the address of the client to send data to, null for all
+     * clients.
+     * @param data the data to send.
+     * @throws IOException if there was an error.
+     */
+    public static void sendData(String ip, JConnData data) throws IOException {
+        if (ip == null) {
+            for (JConnThread thread : acceptThread.getAllThreads()) {
+                thread.sendData(data);
+            }
+        } else {
+            for (JConnThread thread : acceptThread.getAllThreads()) {
+                if (thread.getIP().equals(ip)) {
+                    thread.sendData(data);
+                    return;
+                }
+            }
+        }
     }
 }
