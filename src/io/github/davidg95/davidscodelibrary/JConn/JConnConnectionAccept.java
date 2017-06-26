@@ -10,6 +10,8 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -28,23 +30,25 @@ public class JConnConnectionAccept extends Thread {
     /**
      * The port which is being used by the server.
      */
-    public static int PORT_IN_USE;
+    protected static int PORT_IN_USE;
 
     /**
      * The maximum number of connections that can be active at once. This must
      * be changed before starting the thread.
      */
-    public static int MAX_CONN = 10;
+    protected static int MAX_CONN = 10;
 
     /**
      * The maximum number of connections that can be queued, This must be
      * changed before starting the thread.
      */
-    public static int MAX_QUEUE = 10;
+    protected static int MAX_QUEUE = 10;
 
     private final ServerSocket socket;
 
     private final Object classToScan;
+
+    private final List<JConnThread> threads;
 
     /**
      * Constructor which starts the ThreadPoolExcecutor.
@@ -58,6 +62,16 @@ public class JConnConnectionAccept extends Thread {
         this.socket = new ServerSocket(PORT);
         this.classToScan = classToScan;
         PORT_IN_USE = PORT;
+        threads = new LinkedList<>();
+    }
+
+    /**
+     * Returns a list of all the connection thread objects.
+     *
+     * @return a List of JConnThreads.
+     */
+    public List<JConnThread> getAllThreads() {
+        return threads;
     }
 
     @Override
@@ -86,6 +100,7 @@ public class JConnConnectionAccept extends Thread {
                 final Socket incoming = socket.accept(); //Wait for a connection.
                 final JConnThread th = new JConnThread(socket.getInetAddress().getHostAddress(), incoming, classToScan);
                 pool.submit(th); //Submit the socket to the excecutor.
+                threads.add(th);
             } catch (IOException ex) {
                 if (JConnServer.DEBUG) {
                     LOG.log(Level.SEVERE, null, ex);
