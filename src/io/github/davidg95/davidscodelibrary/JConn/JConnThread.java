@@ -212,6 +212,7 @@ public class JConnThread extends Thread {
                 System.out.println(ex);
             }
         } finally {
+            JConnConnectionAccept.removeThread(this); //Remove the connection from the list.
             try {
                 socket.close(); //Close the socket
                 if (JConnServer.DEBUG) {
