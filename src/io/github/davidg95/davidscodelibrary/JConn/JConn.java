@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * DavidsCodeLibrary
+ * Created by David Grant
  */
 package io.github.davidg95.davidscodelibrary.JConn;
 
@@ -15,7 +14,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Class for sending JConn requests to a JConn server.
+ * Class for sending JConn requests to a JConn server. This will send requests
+ * to the server. When data is received from the server, it is first checked to
+ * see if it is a reply from any request. If not, then it is passed to the
+ * default runner specified by the programmer.
  *
  * @author David
  */
@@ -29,6 +31,11 @@ public class JConn {
     private IncomingThread inc;
     private final JConnRunnable run;
 
+    private boolean connected;
+
+    private String address;
+    private int port;
+
     /**
      * Creates a new JConn object.
      *
@@ -38,8 +45,12 @@ public class JConn {
     public JConn(JConnRunnable run) {
         incomingQueue = new HashMap<>();
         this.run = run;
+        connected = false;
     }
 
+    /**
+     * This thread is the entry point for all incoming data.
+     */
     private class IncomingThread extends Thread {
 
         private final ObjectInputStream in;
@@ -56,18 +67,18 @@ public class JConn {
         public void run() {
             while (run) {
                 try {
-                    final JConnData data = (JConnData) in.readObject();
-                    final String flag = data.getFlag();
+                    final JConnData data = (JConnData) in.readObject(); //Get the data
+                    final String flag = data.getFlag(); //Get the flag
                     boolean found = false;
-                    for (Map.Entry me : incomingQueue.entrySet()) {
-                        if (me.getKey().equals(flag)) {
-                            ((JConnRunnable) me.getValue()).run(data);
+                    for (Map.Entry me : incomingQueue.entrySet()) { //Loop through the waiting threads
+                        if (me.getKey().equals(flag)) { //Check if the flag equals the flag on the blocked thread
+                            ((JConnRunnable) me.getValue()).run(data); //Unblock the thread.
                             found = true;
                             break;
                         }
                     }
                     if (!found) {
-                        runner.run(data);
+                        runner.run(data); //If the flag was not recognised, then the deafult runned is executed.
                     }
                 } catch (IOException | ClassNotFoundException ex) {
                     Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
@@ -81,7 +92,7 @@ public class JConn {
     }
 
     /**
-     * Method to create a connection to a server.
+     * Method to open the connection to the server.
      *
      * @param ip the IP address to connect to.
      * @param port the port number to connect to.
@@ -94,66 +105,97 @@ public class JConn {
         in = new ObjectInputStream(socket.getInputStream());
         inc = new IncomingThread(in, run);
         inc.start();
+        this.address = ip;
+        this.port = port;
+        connected = true;
     }
 
     /**
-     * Method to send data to the server.
+     * Method to send data to the server. This method will execute the runnable
+     * that is passed in on a successful reply from the server. The calling
+     * thread will continue with its execution regardless. If the connection to
+     * the server has not yet been opened, an IOException will be thrown.
      *
      * @param data the data to send.
      * @param run the runnable to execute on a successful response.
      * @throws IOException if there was an error sending the data.
      */
     public void sendData(JConnData data, JConnRunnable run) throws IOException {
+        if (!connected) {
+            throw new IOException("No connection to server!");
+        }
         out.writeObject(data);
         JConnData reply;
         final ReturnData returnData = new ReturnData();
+        //Create the runnable that will execute on a reply
         final JConnRunnable runnable = (tempReply) -> {
             returnData.object = tempReply;
             returnData.cont = true;
         };
-        incomingQueue.put(data.getFlag(), runnable);
+        incomingQueue.put(data.getFlag(), runnable); //Add the runnable to the queue
         try {
             while (!returnData.cont) {
-                Thread.sleep(50);
+                Thread.sleep(50); //Wait here for the reply
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
         }
-        reply = (JConnData) returnData.object;
-        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) {
+        reply = (JConnData) returnData.object; //Get the reply
+        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) { //Check if there was an illegal paramter length
             throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
         }
-        run.run(reply);
+        run.run(reply); //Run the runnable that was passed in by the user, passing in the reply.
     }
 
     /**
-     * Method to send data to the server.
+     * Method to send data to the server. This will block the calling thread
+     * until there has been a successful reply from the server. If the
+     * connection to the server has not yet been opened, an IOException will be
+     * thrown.
      *
      * @param data the data to send.
      * @return the data that was returned.
      * @throws IOException if there was an error sending the data.
      */
     public JConnData sendData(JConnData data) throws IOException {
+        if (!connected) {
+            throw new IOException("No connection to server!");
+        }
         out.writeObject(data);
         JConnData reply;
         final ReturnData returnData = new ReturnData();
+        //Create the runnable that will be executed on a reply
         final JConnRunnable runnable = (tempReply) -> {
             returnData.object = tempReply;
             returnData.cont = true;
         };
-        incomingQueue.put(data.getFlag(), runnable);
+        incomingQueue.put(data.getFlag(), runnable); //Add the runnable to the queue.
         try {
             while (!returnData.cont) {
-                Thread.sleep(50);
+                Thread.sleep(50); //Wait until a reply as been received
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
         }
-        reply = (JConnData) returnData.object;
-        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) {
+        reply = (JConnData) returnData.object; //Get the reply
+        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) { //Check if it is an illegal parameter length
             throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
         }
-        return reply;
+        return reply; //Return the reply
+    }
+
+    /**
+     * Stops the connection to the server.
+     *
+     * @throws IOException if there was an error ending the connection.
+     */
+    public void endConnection() throws IOException {
+        inc.stopRun();
+        in.close();
+        out.flush();
+        out.close();
+        socket.close();
+        connected = false;
     }
 
     private class ReturnData {

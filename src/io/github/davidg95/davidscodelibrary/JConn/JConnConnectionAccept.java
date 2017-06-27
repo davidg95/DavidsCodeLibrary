@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * DavidsCodeLibrary
+ * Created by David Grant
  */
 package io.github.davidg95.davidscodelibrary.JConn;
 
@@ -49,8 +48,8 @@ public class JConnConnectionAccept extends Thread {
 
     private final Object classToScan;
 
-    private static final List<JConnThread> threads = new LinkedList<>();
-    private static final StampedLock lock = new StampedLock();
+    private static final List<JConnThread> THREADS = new LinkedList<>();
+    private static final StampedLock LOCK = new StampedLock();
 
     /**
      * Constructor which starts the ThreadPoolExcecutor.
@@ -72,15 +71,15 @@ public class JConnConnectionAccept extends Thread {
      * @return a List of JConnThreads.
      */
     protected static List<JConnThread> getAllThreads() {
-        return threads;
+        return THREADS;
     }
 
     protected static void removeThread(JConnThread th) {
-        final long stamp = lock.writeLock();
+        final long stamp = LOCK.writeLock();
         try {
-            threads.remove(th);
+            THREADS.remove(th);
         } finally {
-            lock.unlockWrite(stamp);
+            LOCK.unlockWrite(stamp);
         }
     }
 
@@ -110,11 +109,11 @@ public class JConnConnectionAccept extends Thread {
                 final Socket incoming = socket.accept(); //Wait for a connection.
                 final JConnThread th = new JConnThread(socket.getInetAddress().getHostAddress(), incoming, classToScan);
                 pool.submit(th); //Submit the socket to the excecutor.
-                final long stamp = lock.writeLock();
+                final long stamp = LOCK.writeLock();
                 try {
-                    threads.add(th);
+                    THREADS.add(th);
                 } finally {
-                    lock.unlockWrite(stamp);
+                    LOCK.unlockWrite(stamp);
                 }
             } catch (IOException ex) {
                 if (JConnServer.DEBUG) {

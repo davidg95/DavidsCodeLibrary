@@ -1,7 +1,6 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * DavidsCodeLibrary
+ * Created by David Grant
  */
 package io.github.davidg95.davidscodelibrary.JConn;
 
@@ -64,11 +63,11 @@ public class JConnServer {
      */
     public static void sendData(String ip, JConnData data) throws IOException {
         if (ip == null) {
-            for (JConnThread thread : acceptThread.getAllThreads()) {
+            for (JConnThread thread : JConnConnectionAccept.getAllThreads()) {
                 thread.sendData(data);
             }
         } else {
-            for (JConnThread thread : acceptThread.getAllThreads()) {
+            for (JConnThread thread : JConnConnectionAccept.getAllThreads()) {
                 if (thread.getIP().equals(ip)) {
                     thread.sendData(data);
                     return;
