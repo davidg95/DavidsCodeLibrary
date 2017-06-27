@@ -120,6 +120,9 @@ public class JConn {
             Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
         }
         reply = (JConnData) returnData.object;
+        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) {
+            throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
+        }
         run.run(reply);
     }
 
@@ -147,6 +150,9 @@ public class JConn {
             Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
         }
         reply = (JConnData) returnData.object;
+        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) {
+            throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
+        }
         return reply;
     }
 
