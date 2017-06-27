@@ -27,7 +27,7 @@ public class JConn {
 
     private final HashMap<String, JConnRunnable> incomingQueue;
     private IncomingThread inc;
-    private final Runnable run;
+    private final JConnRunnable run;
 
     /**
      * Creates a new JConn object.
@@ -35,7 +35,7 @@ public class JConn {
      * @param run the runnable to execute when an unknown flag is received from
      * the server.
      */
-    public JConn(Runnable run) {
+    public JConn(JConnRunnable run) {
         incomingQueue = new HashMap<>();
         this.run = run;
     }
@@ -44,9 +44,9 @@ public class JConn {
 
         private final ObjectInputStream in;
         private boolean run;
-        private final Runnable runner;
+        private final JConnRunnable runner;
 
-        private IncomingThread(ObjectInputStream in, Runnable runner) {
+        private IncomingThread(ObjectInputStream in, JConnRunnable runner) {
             this.in = in;
             run = true;
             this.runner = runner;
@@ -67,7 +67,7 @@ public class JConn {
                         }
                     }
                     if (!found) {
-                        runner.run();
+                        runner.run(data);
                     }
                 } catch (IOException | ClassNotFoundException ex) {
                     Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
