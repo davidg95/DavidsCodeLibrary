@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.StampedLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,7 +49,8 @@ public class JConnConnectionAccept extends Thread {
 
     private final Object classToScan;
 
-    private final List<JConnThread> threads;
+    private static final List<JConnThread> threads = new LinkedList<>();
+    private static final StampedLock lock = new StampedLock();
 
     /**
      * Constructor which starts the ThreadPoolExcecutor.
@@ -62,7 +64,6 @@ public class JConnConnectionAccept extends Thread {
         this.socket = new ServerSocket(PORT);
         this.classToScan = classToScan;
         PORT_IN_USE = PORT;
-        threads = new LinkedList<>();
     }
 
     /**
@@ -70,8 +71,17 @@ public class JConnConnectionAccept extends Thread {
      *
      * @return a List of JConnThreads.
      */
-    public List<JConnThread> getAllThreads() {
+    protected static List<JConnThread> getAllThreads() {
         return threads;
+    }
+
+    protected static void removeThread(JConnThread th) {
+        final long stamp = lock.writeLock();
+        try {
+            threads.remove(th);
+        } finally {
+            lock.unlockWrite(stamp);
+        }
     }
 
     @Override
@@ -100,7 +110,12 @@ public class JConnConnectionAccept extends Thread {
                 final Socket incoming = socket.accept(); //Wait for a connection.
                 final JConnThread th = new JConnThread(socket.getInetAddress().getHostAddress(), incoming, classToScan);
                 pool.submit(th); //Submit the socket to the excecutor.
-                threads.add(th);
+                final long stamp = lock.writeLock();
+                try {
+                    threads.add(th);
+                } finally {
+                    lock.unlockWrite(stamp);
+                }
             } catch (IOException ex) {
                 if (JConnServer.DEBUG) {
                     LOG.log(Level.SEVERE, null, ex);
