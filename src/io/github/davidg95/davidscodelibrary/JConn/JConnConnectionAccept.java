@@ -107,6 +107,9 @@ public class JConnConnectionAccept extends Thread {
         for (;;) {
             try {
                 final Socket incoming = socket.accept(); //Wait for a connection.
+                if(JConnServer.DEBUG){
+                    LOG.log(Level.INFO, "Connection from " + incoming.getInetAddress().getHostAddress());
+                }
                 final JConnThread th = new JConnThread(socket.getInetAddress().getHostAddress(), incoming, classToScan);
                 pool.submit(th); //Submit the socket to the excecutor.
                 final long stamp = LOCK.writeLock();
@@ -118,6 +121,7 @@ public class JConnConnectionAccept extends Thread {
             } catch (IOException ex) {
                 if (JConnServer.DEBUG) {
                     LOG.log(Level.SEVERE, null, ex);
+                    LOG.log(Level.SEVERE, "THREAD POOL EXECUTOR HAS STOPPED");
                 }
             }
         }

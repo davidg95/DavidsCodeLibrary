@@ -47,6 +47,9 @@ public class JConnThread extends Thread {
      */
     private final LinkedList<Method> JCONNMETHODS;
 
+    /**
+     * Class which contained the annotated methods.
+     */
     private final Object classToScan;
 
     /**
@@ -204,11 +207,11 @@ public class JConnThread extends Thread {
             }
         } catch (SocketException ex) {
             if (JConnServer.DEBUG) {
-                LOG.log(Level.WARNING, "The connection to the client was shut down forcefully");
+                LOG.log(Level.SEVERE, "The connection to the client was shut down forcefully");
             }
         } catch (IOException | ClassNotFoundException | CloneNotSupportedException | SecurityException ex) {
             if (JConnServer.DEBUG) {
-                System.out.println(ex);
+                LOG.log(Level.SEVERE, null, ex);
             }
         } finally {
             JConnConnectionAccept.removeThread(this); //Remove the connection from the list.

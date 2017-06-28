@@ -21,7 +21,7 @@ public class JConnServer {
     /**
      * Indicates if log output should be included.
      */
-    protected static final boolean DEBUG = false;
+    protected static boolean DEBUG = false;
 
     private static JConnConnectionAccept acceptThread;
 
@@ -48,6 +48,7 @@ public class JConnServer {
         if (started) {
             throw new IOException("JConn has already been started");
         }
+        DEBUG = debug;
         acceptThread = new JConnConnectionAccept(port, classToScan);
         acceptThread.start();
         started = true;
