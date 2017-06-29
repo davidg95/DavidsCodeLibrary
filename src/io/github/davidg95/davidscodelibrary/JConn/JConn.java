@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.StampedLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,13 +29,11 @@ public class JConn {
     private ObjectOutputStream out;
 
     private final HashMap<String, JConnRunnable> incomingQueue;
+    private final StampedLock queueLock;
     private IncomingThread inc;
     private final JConnRunnable run;
 
     private boolean connected;
-
-    private String address;
-    private int port;
 
     /**
      * Creates a new JConn object.
@@ -46,6 +45,7 @@ public class JConn {
         incomingQueue = new HashMap<>();
         this.run = run;
         connected = false;
+        queueLock = new StampedLock();
     }
 
     /**
@@ -69,15 +69,36 @@ public class JConn {
                 try {
                     final JConnData data = (JConnData) in.readObject(); //Get the data
                     final String flag = data.getFlag(); //Get the flag
-                    boolean found = false;
-                    for (Map.Entry me : incomingQueue.entrySet()) { //Loop through the waiting threads
-                        if (me.getKey().equals(flag)) { //Check if the flag equals the flag on the blocked thread
-                            ((JConnRunnable) me.getValue()).run(data); //Unblock the thread.
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
+                    if (data.getType() == JConnData.RETURN || data.getType() == JConnData.EXCEPTION) { //Check if this was a reply to a request.
+                        new Thread() {
+                            @Override
+                            public void run() {
+                                boolean found = false;
+                                Map.Entry remove = null;
+                                while (!found) {
+                                    final long stamp = queueLock.readLock();
+                                    try {
+                                        for (Map.Entry me : incomingQueue.entrySet()) { //Loop through the waiting threads
+                                            if (me.getKey().equals(flag)) { //Check if the flag equals the flag on the blocked thread
+                                                ((JConnRunnable) me.getValue()).run(data); //Unblock the thread.
+                                                found = true;
+                                                remove = me; //Keep a reference to the entry, so it can be removed.
+                                                break;
+                                            }
+                                        }
+                                    } finally {
+                                        queueLock.unlockRead(stamp);
+                                    }
+                                }
+                                final long writeStamp = queueLock.writeLock();
+                                try {
+                                    incomingQueue.entrySet().remove(remove); //Remove the entry as it is no longer needed.
+                                } finally {
+                                    queueLock.unlockWrite(writeStamp);
+                                }
+                            }
+                        }.start(); //Search the queue for the reqeust source.
+                    } else {
                         runner.run(data); //If the flag was not recognised, then the deafult runned is executed.
                     }
                 } catch (IOException | ClassNotFoundException ex) {
@@ -105,8 +126,6 @@ public class JConn {
         in = new ObjectInputStream(socket.getInputStream());
         inc = new IncomingThread(in, run);
         inc.start();
-        this.address = ip;
-        this.port = port;
         connected = true;
     }
 
@@ -125,7 +144,6 @@ public class JConn {
             throw new IOException("No connection to server!");
         }
         out.writeObject(data);
-        JConnData reply;
         final ReturnData returnData = new ReturnData();
         //Create the runnable that will execute on a reply
         final JConnRunnable runnable = (tempReply) -> {
@@ -133,18 +151,18 @@ public class JConn {
             returnData.cont = true;
         };
         incomingQueue.put(data.getFlag(), runnable); //Add the runnable to the queue
-        try {
-            while (!returnData.cont) {
-                Thread.sleep(50); //Wait here for the reply
+        new Thread() {
+            @Override
+            public void run() {
+                waitHere(returnData); //Wait for the return;
+                JConnData reply = (JConnData) returnData.object; //Get the reply
+                if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) { //Check if there was an illegal paramter length
+                    //throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
+                    return;
+                }
+                run.run(reply); //Run the runnable that was passed in by the user, passing in the reply.
             }
-        } catch (InterruptedException ex) {
-            Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        reply = (JConnData) returnData.object; //Get the reply
-        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) { //Check if there was an illegal paramter length
-            throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
-        }
-        run.run(reply); //Run the runnable that was passed in by the user, passing in the reply.
+        }.start();
     }
 
     /**
@@ -157,7 +175,7 @@ public class JConn {
      * @return the data that was returned.
      * @throws IOException if there was an error sending the data.
      */
-    public JConnData sendData(JConnData data) throws IOException {
+    public JConnData sendData(JConnData data) throws Exception, IOException {
         if (!connected) {
             throw new IOException("No connection to server!");
         }
@@ -169,19 +187,30 @@ public class JConn {
             returnData.object = tempReply;
             returnData.cont = true;
         };
-        incomingQueue.put(data.getFlag(), runnable); //Add the runnable to the queue.
+        incomingQueue.put(data.getFlag(), runnable); //Add the runnable to the queue
+        waitHere(returnData); //Wait here until a reply is received
+        reply = (JConnData) returnData.object; //Get the reply
+        if (reply.getType() == JConnData.ILLEGAL_PARAM_LENGTH) { //Check if it is an illegal parameter length
+            throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
+        } else if (reply.getType() == JConnData.EXCEPTION) {
+            throw (Exception) reply.getException();
+        }
+        return reply; //Return the reply
+    }
+
+    /**
+     * Method to wait until a reply is received.
+     *
+     * @param ret the object to wait on.
+     */
+    private void waitHere(ReturnData ret) {
         try {
-            while (!returnData.cont) {
-                Thread.sleep(50); //Wait until a reply as been received
+            while (!ret.cont) {
+                Thread.sleep(50); //Wait until a reply has been received
             }
         } catch (InterruptedException ex) {
             Logger.getLogger(JConn.class.getName()).log(Level.SEVERE, null, ex);
         }
-        reply = (JConnData) returnData.object; //Get the reply
-        if (reply.getFlag().equals("ILLEGAL_PARAM_LENGTH")) { //Check if it is an illegal parameter length
-            throw new IOException("Illegal parameter length, the correct number of parameters was not supplied");
-        }
-        return reply; //Return the reply
     }
 
     /**
