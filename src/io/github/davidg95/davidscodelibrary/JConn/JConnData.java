@@ -24,6 +24,36 @@ public class JConnData implements Serializable, Cloneable {
      * The array which contains any data for the transfer.
      */
     private final HashMap<String, Object> data;
+    /**
+     * The return value;
+     */
+    private Object returnValue;
+    /**
+     * The exception;
+     */
+    private Exception exception;
+    /**
+     * The return type for the object.
+     */
+    private int type;
+
+    /**
+     * Indicates that this object has parameters and is for a request.
+     */
+    public static final int REQUEST = 1;
+    /**
+     * Indicates that this object is a return value.
+     */
+    public static final int RETURN = 2;
+    /**
+     * Indicates that this object contains an exception from an error that
+     * occurred.
+     */
+    public static final int EXCEPTION = 3;
+    /**
+     * Indicates an illegal parameter length.
+     */
+    public static final int ILLEGAL_PARAM_LENGTH = 4;
 
     /**
      * Constructor which creates a ConnectionData object with no data, only a
@@ -75,6 +105,19 @@ public class JConnData implements Serializable, Cloneable {
      */
     public JConnData addParam(String name, Object value) {
         data.put(name, value);
+        type = REQUEST;
+        return this;
+    }
+
+    /**
+     * Sets the return value for this object.
+     *
+     * @param value the value to set.
+     * @return this object.
+     */
+    public JConnData setReturnValue(Object value) {
+        returnValue = value;
+        type = RETURN;
         return this;
     }
 
@@ -85,7 +128,48 @@ public class JConnData implements Serializable, Cloneable {
      * @return the return value.
      */
     public Object getReturnValue() {
-        return data.get("RETURN");
+        return returnValue;
+    }
+
+    /**
+     * Sets the exception for this object.
+     *
+     * @param ex the exception.
+     * @return this object.
+     */
+    public JConnData setException(Exception ex) {
+        exception = ex;
+        return this;
+    }
+
+    /**
+     * Gets the exception for this object.
+     *
+     * @return the exception.
+     */
+    public Exception getException() {
+        return exception;
+    }
+
+    /**
+     * Returns the type of this object.
+     *
+     * @return the return type, can be either REQUEST, RETURN, EXCEPTION or ILLEGAL_PARAM_LENGTH.
+     */
+    public int getType() {
+        return type;
+    }
+
+    /**
+     * Set the type for this data object. Can be REQUEST, RETURN, EXCEPTION or
+     * ILLEGAL_PARAM_LENGTH.
+     *
+     * @param type the type.
+     * @return this object.
+     */
+    public JConnData setType(int type) {
+        this.type = type;
+        return this;
     }
 
     /**
