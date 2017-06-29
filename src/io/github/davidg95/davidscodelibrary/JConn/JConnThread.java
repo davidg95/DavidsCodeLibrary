@@ -151,7 +151,7 @@ public class JConnThread extends Thread {
                                         if (m.getParameterCount() != map.size()) { //Check the amount of paramters passed in matches the amount on the method.
                                             final long stamp = outLock.writeLock();
                                             try {
-                                                obOut.writeObject(JConnData.create("ILLEGAL_PARAM_LENGTH"));
+                                                obOut.writeObject(JConnData.create(flag).setType(JConnData.ILLEGAL_PARAM_LENGTH));
                                             } finally {
                                                 outLock.unlockWrite(stamp);
                                             }
@@ -173,15 +173,24 @@ public class JConnThread extends Thread {
                                                 }
                                                 it.remove();
                                             }
-                                            final Object ret = m.invoke(classToScan, params); //Invoke the method
-                                            final long stamp = outLock.writeLock();
                                             try {
-                                                obOut.writeObject(JConnData.create(flag).addParam("RETURN", ret)); //Return the result
-                                            } finally {
-                                                outLock.unlockWrite(stamp);
+                                                final Object ret = m.invoke(classToScan, params); //Invoke the method
+                                                final long stamp = outLock.writeLock();
+                                                try {
+                                                    obOut.writeObject(JConnData.create(flag).setReturnValue(ret)); //Return the result
+                                                } finally {
+                                                    outLock.unlockWrite(stamp);
+                                                }
+                                            } catch (InvocationTargetException ex) {
+                                                final long stamp = outLock.writeLock();
+                                                try {
+                                                    obOut.writeObject(JConnData.create(flag).setException(ex)); //Return the result
+                                                } finally {
+                                                    outLock.unlockWrite(stamp);
+                                                }
                                             }
                                         }
-                                    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | IOException ex) {
+                                    } catch (IllegalAccessException | IllegalArgumentException | IOException ex) {
                                         final long stamp = outLock.writeLock();
                                         try {
                                             obOut.writeObject(JConnData.create(flag).addParam("RETURN", ex));
