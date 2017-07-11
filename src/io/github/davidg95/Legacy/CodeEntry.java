@@ -16,13 +16,13 @@ import javax.swing.JDialog;
  */
 public class CodeEntry extends javax.swing.JDialog {
 
-    private final String CODE;
-    private static JDialog dialog;
-    private String inputValue = "";
-    private final Runnable run1;
-    private final Runnable run2;
-    private static boolean result = false;
-    private static String codeResult = "";
+    private final String CODE; //The code the user must match.
+    private static JDialog dialog; //The dialog.
+    private String inputValue = ""; //The users input
+    private final Runnable run1; //The runnable to execute on successful code entry.
+    private final Runnable run2; //The runnable to execute on unsuccessful code entry.
+    private static boolean result = false; //The result of the code entry.
+    private static String codeResult = ""; //The code the user types in.
 
     /**
      * Creates new form CodeEntry
@@ -162,6 +162,9 @@ public class CodeEntry extends javax.swing.JDialog {
         return codeResult;
     }
 
+    /**
+     * ButtonAction class for the buttons.
+     */
     private class ButtonAction extends AbstractAction {
 
         private static final long serialVersionUID = 1;
@@ -181,18 +184,18 @@ public class CodeEntry extends javax.swing.JDialog {
                 case "C": //If the user pressed cancel
                     result = false;
                     inputValue = "";
-                    if (txtCode.getPassword().length == 0) {
+                    if (txtCode.getPassword().length == 0) { //If the text box was empty, then the dialog will get closed.
                         dispose();
                     }
-                    txtCode.setText("");
+                    txtCode.setText(""); //Clear the text box.
                     break;
                 case "Enter": //If the user pressed enter
-                    checkCode();
+                    checkCode(); //Check the entered code.
                     break;
                 default: //If a number key was pressed
-                    inputValue = new String(txtCode.getPassword());
-                    inputValue += event.getActionCommand();
-                    txtCode.setText(inputValue);
+                    inputValue = new String(txtCode.getPassword()); //Get the current text box contents.
+                    inputValue += event.getActionCommand(); //Add the number to the end.
+                    txtCode.setText(inputValue); //Set the new text box contents.
                     break;
             }
         }
@@ -367,41 +370,6 @@ public class CodeEntry extends javax.swing.JDialog {
         }
         this.dispose();
     }
-
-//    /**
-//     * @param args the command line arguments
-//     */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//                /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(CodeEntry.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
-//
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new CodeEntry().setVisible(true);
-//            }
-//        });
-//    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton btn1;
